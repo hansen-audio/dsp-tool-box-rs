@@ -64,13 +64,11 @@ fn note_length_to_rate(value: f32) -> f32 {
 }
 
 impl Context {
-    #[no_mangle]
-    pub extern "C" fn set_project_time(&mut self, value: f32) {
+    fn set_project_time(&mut self, value: f32) {
         (*self).project_time = value;
     }
 
-    #[no_mangle]
-    pub extern "C" fn create() -> Context {
+    fn create() -> Context {
         let phase = Context {
             tempo: 120.,
             rate: 0.1,
@@ -85,33 +83,28 @@ impl Context {
         return phase;
     }
 
-    #[no_mangle]
-    pub extern "C" fn set_sync_mode(&mut self, value: SyncMode) {
+    fn set_sync_mode(&mut self, value: SyncMode) {
         self.mode = value;
     }
 
-    #[no_mangle]
-    pub extern "C" fn set_sample_rate(&mut self, value: f32) {
+    fn set_sample_rate(&mut self, value: f32) {
         self.sample_rate_recip = 1. / value;
         self.free_running_factor = compute_free_running_factor(self.rate, self.sample_rate_recip);
         self.tempo_synced_factor = self.free_running_factor
             * compute_tempo_synced_factor(RECIPROCAL_60_SECONDS, self.tempo);
     }
 
-    #[no_mangle]
-    pub extern "C" fn set_rate(&mut self, value: f32) {
+    fn set_rate(&mut self, value: f32) {
         self.rate = value;
     }
 
-    #[no_mangle]
-    pub extern "C" fn set_note_len(&mut self, value: f32) {
+    fn set_note_len(&mut self, value: f32) {
         self.note_len = value;
         let rate = note_length_to_rate(value);
         self.set_rate(rate);
     }
 
-    #[no_mangle]
-    pub extern "C" fn advance(&self, value: &mut f32, num_samples: i32) -> bool {
+    fn advance(&self, value: &mut f32, num_samples: i32) -> bool {
         match self.mode {
             SyncMode::FreeRunning => {
                 update_free_running(value, num_samples, self.free_running_factor)
@@ -126,6 +119,42 @@ impl Context {
 
         return check_overflow(value, PHASE_MAX);
     }
+}
+
+// C bindings
+#[no_mangle]
+pub extern "C" fn set_project_time(context: &mut Context, value: f32) {
+    context.set_project_time(value);
+}
+
+#[no_mangle]
+pub extern "C" fn create() -> Context {
+    Context::create()
+}
+
+#[no_mangle]
+pub extern "C" fn set_sync_mode(context: &mut Context, value: SyncMode) {
+    context.set_sync_mode(value);
+}
+
+#[no_mangle]
+pub extern "C" fn set_sample_rate(context: &mut Context, value: f32) {
+    context.set_sample_rate(value);
+}
+
+#[no_mangle]
+pub extern "C" fn set_rate(context: &mut Context, value: f32) {
+    context.set_rate(value);
+}
+
+#[no_mangle]
+pub extern "C" fn set_note_len(context: &mut Context, value: f32) {
+    context.set_note_len(value);
+}
+
+#[no_mangle]
+pub extern "C" fn advance(context: &Context, value: &mut f32, num_samples: i32) -> bool {
+    context.advance(value, num_samples)
 }
 
 #[cfg(test)]
