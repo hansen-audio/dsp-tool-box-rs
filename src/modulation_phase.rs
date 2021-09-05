@@ -65,11 +65,11 @@ fn note_length_to_rate(value: f32) -> f32 {
 
 impl Context {
     fn set_project_time(&mut self, value: f32) {
-        (*self).project_time = value;
+        self.project_time = value;
     }
 
-    fn create() -> Context {
-        let phase = Context {
+    fn create() -> Self {
+        Self {
             tempo: 120.,
             rate: 0.1,
             sample_rate_recip: 1. / 48000.,
@@ -78,9 +78,7 @@ impl Context {
             free_running_factor: 0.,
             tempo_synced_factor: 0.,
             note_len: 1. / 32.,
-        };
-
-        return phase;
+        }
     }
 
     fn set_sync_mode(&mut self, value: SyncMode) {
@@ -117,7 +115,7 @@ impl Context {
             }
         };
 
-        return check_overflow(value, PHASE_MAX);
+        check_overflow(value, PHASE_MAX)
     }
 }
 
