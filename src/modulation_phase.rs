@@ -1,3 +1,5 @@
+// Copyright(c) 2021 Hansen Audio.
+
 #[repr(C)] // give this struct/union/enum the same layout and ABI C would
 #[derive(Copy, Clone)]
 pub enum SyncMode {
