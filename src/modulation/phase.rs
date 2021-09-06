@@ -65,11 +65,11 @@ pub extern "C" fn note_length_to_rate(value: RealType) -> RealType {
 }
 
 impl Context {
-    fn set_project_time(&mut self, value: RealType) {
+    pub fn set_project_time(&mut self, value: RealType) {
         self.project_time = value;
     }
 
-    fn new() -> Self {
+    pub fn new() -> Self {
         Self {
             tempo: 120.,
             rate: 0.1,
@@ -82,28 +82,28 @@ impl Context {
         }
     }
 
-    fn set_sync_mode(&mut self, value: SyncMode) {
+    pub fn set_sync_mode(&mut self, value: SyncMode) {
         self.mode = value;
     }
 
-    fn set_sample_rate(&mut self, value: RealType) {
+    pub fn set_sample_rate(&mut self, value: RealType) {
         self.sample_rate_recip = 1. / value;
         self.free_running_factor = compute_free_running_factor(self.rate, self.sample_rate_recip);
         self.tempo_synced_factor = self.free_running_factor
             * compute_tempo_synced_factor(RECIPROCAL_60_SECONDS, self.tempo);
     }
 
-    fn set_rate(&mut self, value: RealType) {
+    pub fn set_rate(&mut self, value: RealType) {
         self.rate = value;
     }
 
-    fn set_note_len(&mut self, value: RealType) {
+    pub fn set_note_len(&mut self, value: RealType) {
         self.note_len = value;
         let rate = note_length_to_rate(value);
         self.set_rate(rate);
     }
 
-    fn advance(&self, value: &mut RealType, num_samples: i32) -> bool {
+    pub fn advance(&self, value: &mut RealType, num_samples: i32) -> bool {
         match self.mode {
             SyncMode::FreeRunning => {
                 update_free_running(value, num_samples, self.free_running_factor)
