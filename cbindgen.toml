@@ -25,7 +25,7 @@ include_version = true
 
 # An optional list of namespaces to output around the generated bindings
 # default: []
-namespaces = ["ha", "dtb", "modulation_phase"]
+namespaces = ["ha", "dtb", "modulation", "phase"]
 
 # Whether cbindgen's default C/C++ standard imports should be suppressed. These
 # imports are included by default because our generated headers tend to require
