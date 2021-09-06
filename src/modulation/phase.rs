@@ -69,7 +69,7 @@ impl Context {
         self.project_time = value;
     }
 
-    fn create() -> Self {
+    fn new() -> Self {
         Self {
             tempo: 120.,
             rate: 0.1,
@@ -125,14 +125,14 @@ mod tests {
     use super::*;
     #[test]
     fn test() {
-        let context = Context::create();
+        let context = Context::new();
         assert_eq!(context.tempo, 120.);
         assert_eq!(context.rate, 0.1);
     }
 
     #[test]
     fn test_advance() {
-        let context = Context::create();
+        let context = Context::new();
         let mut value = 0.1;
         let did_overflow = context.advance(&mut value, 1);
         assert_eq!(did_overflow, true);
@@ -141,7 +141,7 @@ mod tests {
     #[test]
     fn test_project_synced_overflow() {
         let mut phase_value = 0.;
-        let mut context = Context::create();
+        let mut context = Context::new();
         context.set_sync_mode(SyncMode::ProjectSync);
         context.set_note_len(1.0);
         //set_project_time(&mut cx, 3.9);
