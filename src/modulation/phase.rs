@@ -124,6 +124,22 @@ impl Context {
 
         check_overflow(value, PHASE_MAX)
     }
+
+    pub fn advance_one_shot(&self, value: &mut RealType, num_samples: i32) -> bool {
+        match *value >= 1. {
+            true => {
+                return true;
+            }
+            false => {
+                let is_overflow = self.advance(value, num_samples);
+                if is_overflow {
+                    *value = 1.;
+                }
+
+                return is_overflow;
+            }
+        }
+    }
 }
 
 #[cfg(test)]
