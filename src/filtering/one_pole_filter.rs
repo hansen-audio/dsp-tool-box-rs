@@ -11,7 +11,7 @@ pub struct Context {
 }
 
 impl Context {
-    fn new(a: RealType) -> Self {
+    pub fn new(a: RealType) -> Self {
         Self {
             a,
             b: 1. - a,
@@ -19,12 +19,12 @@ impl Context {
         }
     }
 
-    fn update_pole(&mut self, a: RealType) {
+    pub fn update_pole(&mut self, a: RealType) {
         self.a = a;
         self.b = 1. - a;
     }
 
-    fn process(&mut self, input: RealType) -> RealType {
+    pub fn process(&mut self, input: RealType) -> RealType {
         if approx_eq!(RealType, self.z, input) {
             return self.z;
         }
@@ -33,12 +33,12 @@ impl Context {
         self.z
     }
 
-    fn reset(&mut self, input: RealType) {
+    pub fn reset(&mut self, input: RealType) {
         self.z = input;
     }
 }
 
-fn tau_to_pole(tau: RealType, sample_rate: RealType) -> RealType {
+pub fn tau_to_pole(tau: RealType, sample_rate: RealType) -> RealType {
     const RECIPROCAL_5: RealType = 1. / 5.;
     -1. / ((tau * RECIPROCAL_5) * sample_rate)
 }
