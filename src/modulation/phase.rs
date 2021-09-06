@@ -103,6 +103,10 @@ impl Context {
         self.set_rate(rate);
     }
 
+    pub fn get_note_len(&self) -> RealType {
+        self.note_len
+    }
+
     pub fn set_tempo(&mut self, tempo_bpm: RealType) {
         self.tempo = tempo_bpm;
         let factor = compute_tempo_synced_factor(RECIPROCAL_60_SECONDS, tempo_bpm);
