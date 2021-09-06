@@ -65,10 +65,6 @@ pub extern "C" fn note_length_to_rate(value: RealType) -> RealType {
 }
 
 impl Context {
-    pub fn set_project_time(&mut self, value: RealType) {
-        self.project_time = value;
-    }
-
     pub fn new() -> Self {
         Self {
             tempo: 120.,
@@ -80,6 +76,10 @@ impl Context {
             tempo_synced_factor: 0.,
             note_len: 1. / 32.,
         }
+    }
+
+    pub fn set_project_time(&mut self, value: RealType) {
+        self.project_time = value;
     }
 
     pub fn set_sync_mode(&mut self, value: SyncMode) {
