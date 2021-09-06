@@ -13,3 +13,4 @@ cbindgen = "0.20.0"
 crate-type = ["staticlib"]
 
 [dependencies]
+float-cmp ="0.9.0"
