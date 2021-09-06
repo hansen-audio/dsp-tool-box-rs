@@ -103,6 +103,12 @@ impl Context {
         self.set_rate(rate);
     }
 
+    pub fn set_tempo(&mut self, tempo_bpm: RealType) {
+        self.tempo = tempo_bpm;
+        let factor = compute_tempo_synced_factor(RECIPROCAL_60_SECONDS, tempo_bpm);
+        self.tempo_synced_factor = self.free_running_factor * factor;
+    }
+
     pub fn advance(&self, value: &mut RealType, num_samples: i32) -> bool {
         match self.mode {
             SyncMode::FreeRunning => {
