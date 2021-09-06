@@ -34,11 +34,11 @@ fn check_overflow(phase_value: &mut RealType, phase_max: RealType) -> bool {
     return overflow;
 }
 
-fn update_free_running(phase: &mut RealType, num_samples: i32, free_running_factor: RealType) {
+fn update_free_running(phase: &mut RealType, num_samples: usize, free_running_factor: RealType) {
     *phase += free_running_factor * num_samples as RealType;
 }
 
-fn update_tempo_sync(phase: &mut RealType, num_samples: i32, tempo_synced_factor: RealType) {
+fn update_tempo_sync(phase: &mut RealType, num_samples: usize, tempo_synced_factor: RealType) {
     *phase += num_samples as RealType * tempo_synced_factor;
 }
 
@@ -113,7 +113,7 @@ impl Context {
         self.tempo_synced_factor = self.free_running_factor * factor;
     }
 
-    pub fn advance(&self, value: &mut RealType, num_samples: i32) -> bool {
+    pub fn advance(&self, value: &mut RealType, num_samples: usize) -> bool {
         match self.mode {
             SyncMode::FreeRunning => {
                 update_free_running(value, num_samples, self.free_running_factor)
@@ -129,7 +129,7 @@ impl Context {
         check_overflow(value, PHASE_MAX)
     }
 
-    pub fn advance_one_shot(&self, value: &mut RealType, num_samples: i32) -> bool {
+    pub fn advance_one_shot(&self, value: &mut RealType, num_samples: usize) -> bool {
         match *value >= 1. {
             true => {
                 return true;
