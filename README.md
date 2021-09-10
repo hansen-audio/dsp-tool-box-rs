@@ -10,7 +10,6 @@ Execute the following commands on cli.
 
 ```
 git clone https://www.github.com/hansen-audio/dsp-tool-box-rs.git
-mkdir dsp-tool-box-rs
 cd dsp-tool-box-rs
 cargo build
 cargo test
