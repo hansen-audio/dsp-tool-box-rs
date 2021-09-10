@@ -40,7 +40,8 @@ impl Context {
 
 pub fn tau_to_pole(tau: RealType, sample_rate: RealType) -> RealType {
     const RECIPROCAL_5: RealType = 1. / 5.;
-    -1. / ((tau * RECIPROCAL_5) * sample_rate)
+    let result = -1. / ((tau * RECIPROCAL_5) * sample_rate);
+    result.exp()
 }
 
 #[cfg(test)]
@@ -59,6 +60,7 @@ mod tests {
 
     #[test]
     fn test_tau_to_pole() {
-        tau_to_pole(1., 48000.);
+        let pole = tau_to_pole(0.9, 48000.);
+        assert_eq!(pole, 0.999884247);
     }
 }
