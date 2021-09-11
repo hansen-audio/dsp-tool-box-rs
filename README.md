@@ -1,5 +1,7 @@
 # DSP Tool Box for Rust
 
+[![Rust](https://github.com/hansen-audio/dsp-tool-box-rs/actions/workflows/rust.yml/badge.svg)](https://github.com/hansen-audio/dsp-tool-box-rs/actions/workflows/rust.yml)
+
 ## Summary
 
 The ```dsp-tool-box``` contains very basic DSP algorithms. Algorithms can operate on one sample at a time. Like this an update of a parameter can be done any time while processing.
