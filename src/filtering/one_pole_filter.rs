@@ -4,13 +4,13 @@ use float_cmp::approx_eq;
 
 use crate::RealType;
 
-pub struct Context {
+pub struct OnePoleContext {
     a: RealType,
     b: RealType,
     z: RealType,
 }
 
-impl Context {
+impl OnePoleContext {
     pub fn new(a: RealType) -> Self {
         Self {
             a,
@@ -46,13 +46,13 @@ pub fn tau_to_pole(tau: RealType, sample_rate: RealType) -> RealType {
 
 #[cfg(test)]
 mod tests {
-    use crate::filtering::one_pole_filter::Context;
+    use crate::filtering::one_pole_filter::OnePoleContext;
 
     use super::*;
 
     #[test]
     fn test_instantiation() {
-        let mut c = Context::new(0.);
+        let mut c = OnePoleContext::new(0.);
         c.process(1.);
         c.update_pole(1.);
         c.reset(1.);

@@ -3,6 +3,7 @@
 use crate::RealType;
 
 #[derive(Copy, Clone)]
+// #[repr(C)]
 pub enum SyncMode {
     FreeRunning,
     TempoSync,
@@ -10,7 +11,8 @@ pub enum SyncMode {
 }
 
 #[derive(Copy, Clone)]
-pub struct Context {
+// #[repr(C)]
+pub struct PhaseContext {
     tempo: RealType,
     rate: RealType,
     sample_rate_recip: RealType,
@@ -64,7 +66,7 @@ pub extern "C" fn note_length_to_rate(value: RealType) -> RealType {
     return (1. / value) * RECIPROCAL_BEATS_IN_NOTE;
 }
 
-impl Context {
+impl PhaseContext {
     pub fn new() -> Self {
         Self {
             tempo: 120.,
@@ -151,14 +153,14 @@ mod tests {
     use super::*;
     #[test]
     fn test() {
-        let context = Context::new();
+        let context = PhaseContext::new();
         assert_eq!(context.tempo, 120.);
         assert_eq!(context.rate, 0.1);
     }
 
     #[test]
     fn test_advance() {
-        let context = Context::new();
+        let context = PhaseContext::new();
         let mut value = 0.1;
         let did_overflow = context.advance(&mut value, 1);
         assert_eq!(did_overflow, true);
@@ -167,7 +169,7 @@ mod tests {
     #[test]
     fn test_project_synced_overflow() {
         let mut phase_value = 0.;
-        let mut context = Context::new();
+        let mut context = PhaseContext::new();
         context.set_sync_mode(SyncMode::ProjectSync);
         context.set_note_len(1.0);
         //set_project_time(&mut cx, 3.9);
