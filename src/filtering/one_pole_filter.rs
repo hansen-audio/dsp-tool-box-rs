@@ -4,6 +4,7 @@ use float_cmp::approx_eq;
 
 use crate::RealType;
 
+//#[repr(C)]
 pub struct OnePoleContext {
     a: RealType,
     b: RealType,

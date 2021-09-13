@@ -3,7 +3,7 @@
 use crate::RealType;
 
 #[derive(Copy, Clone)]
-// #[repr(C)]
+#[repr(C)]
 pub enum SyncMode {
     FreeRunning,
     TempoSync,
@@ -11,7 +11,7 @@ pub enum SyncMode {
 }
 
 #[derive(Copy, Clone)]
-// #[repr(C)]
+#[repr(C)]
 pub struct PhaseContext {
     tempo: RealType,
     rate: RealType,
@@ -60,8 +60,7 @@ fn compute_tempo_synced_factor(sixty_seconds_recip: RealType, tempo: RealType) -
     return sixty_seconds_recip * tempo;
 }
 
-#[no_mangle]
-pub extern "C" fn note_length_to_rate(value: RealType) -> RealType {
+pub fn note_length_to_rate(value: RealType) -> RealType {
     assert!(value > 0.);
     return (1. / value) * RECIPROCAL_BEATS_IN_NOTE;
 }
