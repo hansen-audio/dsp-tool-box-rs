@@ -4,6 +4,7 @@ use float_cmp::approx_eq;
 
 use crate::RealType;
 
+#[derive(Debug, Copy, Clone)]
 //#[repr(C)]
 pub struct OnePoleContext {
     a: RealType,
@@ -63,5 +64,11 @@ mod tests {
     fn test_tau_to_pole() {
         let pole = tau_to_pole(0.9, 48000.);
         assert_eq!(pole, 0.999884247);
+    }
+
+    #[test]
+    fn test_debug_print() {
+        let filter = OnePoleContext::new(0.);
+        println!("{:?}", filter);
     }
 }

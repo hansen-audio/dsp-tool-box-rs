@@ -2,16 +2,16 @@
 
 use crate::RealType;
 
-#[derive(Copy, Clone)]
-#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+//#[repr(C)]
 pub enum SyncMode {
     FreeRunning,
     TempoSync,
     ProjectSync,
 }
 
-#[derive(Copy, Clone)]
-#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+//#[repr(C)]
 pub struct PhaseContext {
     tempo: RealType,
     rate: RealType,
@@ -179,5 +179,11 @@ mod tests {
         context.set_project_time(4.0);
         overflow = context.advance(&mut phase_value, 1);
         assert_eq!(overflow, true);
+    }
+
+    #[test]
+    fn test_debug_print_phase_context() {
+        let p = PhaseContext::new();
+        println!("{:#?}", p);
     }
 }
