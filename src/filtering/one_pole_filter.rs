@@ -69,6 +69,6 @@ mod tests {
     #[test]
     fn test_debug_print() {
         let filter = OnePoleContext::new(0.);
-        println!("{:?}", filter);
+        println!("{:#?}", filter);
     }
 }
