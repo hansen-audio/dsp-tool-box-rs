@@ -12,7 +12,7 @@ pub enum SyncMode {
 
 #[derive(Debug, Copy, Clone)]
 //#[repr(C)]
-pub struct PhaseContext {
+pub struct Phase {
     free_running_factor: RealType,
     mode: SyncMode,
     note_len: RealType,
@@ -65,7 +65,7 @@ pub fn note_length_to_rate(value: RealType) -> RealType {
     return (1. / value) * RECIPROCAL_BEATS_IN_NOTE;
 }
 
-impl PhaseContext {
+impl Phase {
     pub fn new() -> Self {
         Self {
             free_running_factor: 0.,
@@ -151,15 +151,15 @@ impl PhaseContext {
 mod tests {
     use super::*;
     #[test]
-    fn test() {
-        let context = PhaseContext::new();
+    fn test_new() {
+        let context = Phase::new();
         assert_eq!(context.tempo, 120.);
         assert_eq!(context.rate, 0.1);
     }
 
     #[test]
     fn test_advance() {
-        let context = PhaseContext::new();
+        let context = Phase::new();
         let mut value = 0.1;
         let did_overflow = context.advance(&mut value, 1);
         assert_eq!(did_overflow, true);
@@ -168,11 +168,11 @@ mod tests {
     #[test]
     fn test_project_synced_overflow() {
         let mut phase_value = 0.;
-        let mut context = PhaseContext::new();
+        let mut context = Phase::new();
         context.set_sync_mode(SyncMode::ProjectSync);
         context.set_note_len(1.0);
-        //set_project_time(&mut cx, 3.9);
         context.set_project_time(3.9);
+
         let mut overflow = context.advance(&mut phase_value, 1);
         assert_eq!(overflow, false);
 
@@ -182,8 +182,9 @@ mod tests {
     }
 
     #[test]
-    fn test_debug_print_phase_context() {
-        let p = PhaseContext::new();
+    #[ignore]
+    fn test_debug_print() {
+        let p = Phase::new();
         println!("{:#?}", p);
     }
 }
