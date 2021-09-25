@@ -13,14 +13,14 @@ pub enum SyncMode {
 #[derive(Debug, Copy, Clone)]
 //#[repr(C)]
 pub struct PhaseContext {
-    tempo: RealType,
+    free_running_factor: RealType,
+    mode: SyncMode,
+    note_len: RealType,
+    project_time: RealType,
     rate: RealType,
     sample_rate_recip: RealType,
-    project_time: RealType,
-    mode: SyncMode,
-    free_running_factor: RealType,
+    tempo: RealType,
     tempo_synced_factor: RealType,
-    note_len: RealType,
 }
 
 static RECIPROCAL_BEATS_IN_NOTE: RealType = 1. / 4.;
@@ -68,14 +68,14 @@ pub fn note_length_to_rate(value: RealType) -> RealType {
 impl PhaseContext {
     pub fn new() -> Self {
         Self {
-            tempo: 120.,
+            free_running_factor: 0.,
+            mode: SyncMode::ProjectSync,
+            note_len: 1. / 32.,
+            project_time: 0.,
             rate: 0.1,
             sample_rate_recip: 1. / 48000.,
-            project_time: 0.,
-            mode: SyncMode::ProjectSync,
-            free_running_factor: 0.,
             tempo_synced_factor: 0.,
-            note_len: 1. / 32.,
+            tempo: 120.,
         }
     }
 
