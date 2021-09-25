@@ -6,13 +6,13 @@ use crate::RealType;
 
 #[derive(Debug, Copy, Clone)]
 //#[repr(C)]
-pub struct OnePoleContext {
+pub struct OnePole {
     a: RealType,
     b: RealType,
     z: RealType,
 }
 
-impl OnePoleContext {
+impl OnePole {
     pub fn new(a: RealType) -> Self {
         Self {
             a,
@@ -48,13 +48,13 @@ pub fn tau_to_pole(tau: RealType, sample_rate: RealType) -> RealType {
 
 #[cfg(test)]
 mod tests {
-    use crate::filtering::one_pole_filter::OnePoleContext;
+    use crate::filtering::one_pole_filter::OnePole;
 
     use super::*;
 
     #[test]
-    fn test_instantiation() {
-        let mut c = OnePoleContext::new(0.);
+    fn test_new() {
+        let mut c = OnePole::new(0.);
         c.process(1.);
         c.update_pole(1.);
         c.reset(1.);
@@ -67,8 +67,9 @@ mod tests {
     }
 
     #[test]
+    #[ignore]
     fn test_debug_print() {
-        let filter = OnePoleContext::new(0.);
+        let filter = OnePole::new(0.);
         println!("{:#?}", filter);
     }
 }
