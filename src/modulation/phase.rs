@@ -33,7 +33,7 @@ fn check_overflow(phase_value: &mut RealType, phase_max: RealType) -> bool {
         *phase_value %= phase_max;
     }
 
-    return overflow;
+    overflow
 }
 
 fn update_free_running(phase: &mut RealType, num_samples: usize, free_running_factor: RealType) {
@@ -45,24 +45,24 @@ fn update_tempo_sync(phase: &mut RealType, num_samples: usize, tempo_synced_fact
 }
 
 fn normalize_phase(value: RealType) -> RealType {
-    return value - value.floor();
+    value - value.floor()
 }
 
 fn update_project_sync(project_time: RealType, rate: RealType) -> RealType {
-    return normalize_phase(project_time * rate);
+    normalize_phase(project_time * rate)
 }
 
 fn compute_free_running_factor(rate: RealType, sample_rate_recip: RealType) -> RealType {
-    return rate * sample_rate_recip;
+    rate * sample_rate_recip
 }
 
 fn compute_tempo_synced_factor(sixty_seconds_recip: RealType, tempo: RealType) -> RealType {
-    return sixty_seconds_recip * tempo;
+    sixty_seconds_recip * tempo
 }
 
 pub fn note_length_to_rate(value: RealType) -> RealType {
     assert!(value > 0.);
-    return (1. / value) * RECIPROCAL_BEATS_IN_NOTE;
+    (1. / value) * RECIPROCAL_BEATS_IN_NOTE
 }
 
 impl Phase {
@@ -132,16 +132,14 @@ impl Phase {
 
     pub fn advance_one_shot(&self, value: &mut RealType, num_samples: usize) -> bool {
         match *value >= 1. {
-            true => {
-                return true;
-            }
+            true => true,
             false => {
                 let is_overflow = self.advance(value, num_samples);
                 if is_overflow {
                     *value = 1.;
                 }
 
-                return is_overflow;
+                is_overflow
             }
         }
     }
