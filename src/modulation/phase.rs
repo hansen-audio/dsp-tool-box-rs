@@ -120,12 +120,8 @@ fn update_tempo_sync(phase: &mut Real, num_samples: usize, tempo_synced_factor: 
     *phase += num_samples as Real * tempo_synced_factor;
 }
 
-fn normalize_phase(value: Real) -> Real {
-    value - value.floor()
-}
-
 fn update_project_sync(project_time: Real, rate: Real) -> Real {
-    normalize_phase(project_time * rate)
+    (project_time * rate).fract() // x.fract() to normalize
 }
 
 fn compute_free_running_factor(rate: Real, sample_rate_recip: Real) -> Real {
