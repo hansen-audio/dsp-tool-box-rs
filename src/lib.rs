@@ -3,4 +3,4 @@
 pub mod filtering;
 pub mod modulation;
 
-type RealType = f32;
+type Real = f32;

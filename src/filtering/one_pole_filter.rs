@@ -2,18 +2,18 @@
 
 use float_cmp::approx_eq;
 
-use crate::RealType;
+use crate::Real;
 
 #[derive(Debug, Copy, Clone)]
 //#[repr(C)]
 pub struct OnePole {
-    a: RealType,
-    b: RealType,
-    z: RealType,
+    a: Real,
+    b: Real,
+    z: Real,
 }
 
 impl OnePole {
-    pub fn new(a: RealType) -> Self {
+    pub fn new(a: Real) -> Self {
         Self {
             a,
             b: 1. - a,
@@ -21,13 +21,13 @@ impl OnePole {
         }
     }
 
-    pub fn update_pole(&mut self, a: RealType) {
+    pub fn update_pole(&mut self, a: Real) {
         self.a = a;
         self.b = 1. - a;
     }
 
-    pub fn process(&mut self, input: RealType) -> RealType {
-        if approx_eq!(RealType, self.z, input) {
+    pub fn process(&mut self, input: Real) -> Real {
+        if approx_eq!(Real, self.z, input) {
             return self.z;
         }
 
@@ -35,21 +35,19 @@ impl OnePole {
         self.z
     }
 
-    pub fn reset(&mut self, input: RealType) {
+    pub fn reset(&mut self, input: Real) {
         self.z = input;
     }
-}
 
-pub fn tau_to_pole(tau: RealType, sample_rate: RealType) -> RealType {
-    const RECIPROCAL_5: RealType = 1. / 5.;
-    let result = -1. / ((tau * RECIPROCAL_5) * sample_rate);
-    result.exp()
+    pub fn tau_to_pole(tau: Real, sample_rate: Real) -> Real {
+        const RECIPROCAL_5: Real = 1. / 5.;
+        let result = -1. / ((tau * RECIPROCAL_5) * sample_rate);
+        result.exp()
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::filtering::one_pole_filter::OnePole;
-
     use super::*;
 
     #[test]
@@ -62,7 +60,7 @@ mod tests {
 
     #[test]
     fn test_tau_to_pole() {
-        let pole = tau_to_pole(0.9, 48000.);
+        let pole = OnePole::tau_to_pole(0.9, 48000.);
         assert_eq!(pole, 0.999884247);
     }
 
