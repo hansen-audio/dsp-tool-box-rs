@@ -144,6 +144,7 @@ pub fn note_length_to_rate(value: Real) -> Real {
 #[cfg(test)]
 mod tests {
     use super::*;
+
     #[test]
     fn test_new() {
         let context = Phase::new();
