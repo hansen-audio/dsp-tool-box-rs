@@ -1,7 +1,5 @@
 // Copyright(c) 2021 Hansen Audio.
 
-use float_cmp::approx_eq;
-
 use crate::Real;
 
 #[derive(Debug, Copy, Clone)]
@@ -27,6 +25,8 @@ impl OnePole {
     }
 
     pub fn process(&mut self, input: Real) -> Real {
+        use float_cmp::approx_eq;
+
         if approx_eq!(Real, self.z, input) {
             return self.z;
         }
@@ -40,8 +40,8 @@ impl OnePole {
     }
 
     pub fn tau_to_pole(tau: Real, sample_rate: Real) -> Real {
-        const RECIPROCAL_5: Real = 1. / 5.;
-        let result = -1. / ((tau * RECIPROCAL_5) * sample_rate);
+        const FIVE_RECIP: Real = 1. / 5.;
+        let result = -1. / ((tau * FIVE_RECIP) * sample_rate);
         result.exp()
     }
 }
