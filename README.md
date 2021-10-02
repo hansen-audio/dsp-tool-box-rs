@@ -4,9 +4,11 @@
 
 ## Summary
 
-The ```dsp-tool-box``` contains very basic DSP algorithms. Algorithms can operate on one sample at a time. Like this an update of a parameter can be done any time while processing.
+The ```dsp-tool-box-rs``` contains very basic DSP algorithms. Algorithms can operate on one sample at a time. Like this an update of a parameter can be done any time while processing.
 
 ## Building the project
+
+Install [Rust](https://rustup.rs/)!
 
 Execute the following commands on cli.
 
@@ -22,14 +24,15 @@ cargo test
 Currently the following algorithms are available:
 
 * modulation phase
+* one pole filter
 
 ## Using the algorithms
 
-TODO
-
-## C++ and Rust interop
-
-TODO
+```Rust
+let mut filter = OnePoleFilter::new(0.9);
+let out = filter.process(1.);
+println("{:?}", out);
+```
 
 ## License
 
