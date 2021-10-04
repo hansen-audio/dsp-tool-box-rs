@@ -2,8 +2,7 @@
 
 use crate::Real;
 
-#[derive(Debug, Copy, Clone)]
-//#[repr(C)]
+#[derive(Debug, Clone)]
 pub struct OnePole {
     a: Real,
     b: Real,

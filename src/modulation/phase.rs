@@ -2,14 +2,14 @@
 
 use crate::Real;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Clone)]
 pub enum SyncMode {
     FreeRunning,
     TempoSync,
     ProjectSync,
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Clone)]
 pub struct Phase {
     free_run_factor: Real,
     mode: SyncMode,
