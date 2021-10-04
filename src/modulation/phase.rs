@@ -64,7 +64,7 @@ impl Phase {
         self.set_rate(rate);
     }
 
-    pub fn get_note_len(&self) -> Real {
+    pub fn note_len(&self) -> Real {
         self.note_len
     }
 
