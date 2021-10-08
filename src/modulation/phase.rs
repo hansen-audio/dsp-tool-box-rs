@@ -22,7 +22,7 @@ pub struct Phase {
 }
 
 static BEATS_IN_NOTE_RECIP: Real = 1. / 4.;
-static SIXTY_SECONDS_RECIP: Real = 1. / 60.;
+static SIXTY_SECS_RECIP: Real = 1. / 60.;
 static PHASE_MAX: Real = 1.;
 
 impl Phase {
@@ -51,7 +51,7 @@ impl Phase {
         self.sample_rate_recip = 1. / value;
         self.free_run_factor = compute_free_running_factor(self.rate, self.sample_rate_recip);
         self.tempo_synced_factor =
-            self.free_run_factor * compute_tempo_synced_factor(SIXTY_SECONDS_RECIP, self.tempo);
+            self.free_run_factor * compute_tempo_synced_factor(SIXTY_SECS_RECIP, self.tempo);
     }
 
     pub fn set_rate(&mut self, value: Real) {
@@ -60,7 +60,7 @@ impl Phase {
 
     pub fn set_note_len(&mut self, value: Real) {
         self.note_len = value;
-        let rate = note_length_to_rate(value);
+        let rate = note_len_to_rate(value);
         self.set_rate(rate);
     }
 
@@ -70,7 +70,7 @@ impl Phase {
 
     pub fn set_tempo(&mut self, tempo_bpm: Real) {
         self.tempo = tempo_bpm;
-        let factor = compute_tempo_synced_factor(SIXTY_SECONDS_RECIP, tempo_bpm);
+        let factor = compute_tempo_synced_factor(SIXTY_SECS_RECIP, tempo_bpm);
         self.tempo_synced_factor = self.free_run_factor * factor;
     }
 
@@ -132,7 +132,7 @@ fn compute_tempo_synced_factor(sixty_seconds_recip: Real, tempo: Real) -> Real {
     sixty_seconds_recip * tempo
 }
 
-pub fn note_length_to_rate(value: Real) -> Real {
+pub fn note_len_to_rate(value: Real) -> Real {
     assert!(value > 0.);
     (1. / value) * BEATS_IN_NOTE_RECIP
 }
