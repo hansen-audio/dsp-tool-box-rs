@@ -21,10 +21,6 @@ pub struct Phase {
     tempo_synced_factor: Real,
 }
 
-static BEATS_IN_NOTE_RECIP: Real = 1. / 4.;
-static SIXTY_SECS_RECIP: Real = 1. / 60.;
-static PHASE_MAX: Real = 1.;
-
 impl Phase {
     pub fn new() -> Self {
         Self {
@@ -49,9 +45,9 @@ impl Phase {
 
     pub fn set_sample_rate(&mut self, value: Real) {
         self.sample_rate_recip = 1. / value;
-        self.free_run_factor = compute_free_running_factor(self.rate, self.sample_rate_recip);
+        self.free_run_factor = Self::compute_free_running_factor(self.rate, self.sample_rate_recip);
         self.tempo_synced_factor =
-            self.free_run_factor * compute_tempo_synced_factor(SIXTY_SECS_RECIP, self.tempo);
+            self.free_run_factor * Self::compute_tempo_synced_factor(self.tempo);
     }
 
     pub fn set_rate(&mut self, value: Real) {
@@ -60,7 +56,7 @@ impl Phase {
 
     pub fn set_note_len(&mut self, value: Real) {
         self.note_len = value;
-        let rate = note_len_to_rate(value);
+        let rate = Self::note_len_to_rate(value);
         self.set_rate(rate);
     }
 
@@ -70,22 +66,26 @@ impl Phase {
 
     pub fn set_tempo(&mut self, tempo_bpm: Real) {
         self.tempo = tempo_bpm;
-        let factor = compute_tempo_synced_factor(SIXTY_SECS_RECIP, tempo_bpm);
+        let factor = Self::compute_tempo_synced_factor(tempo_bpm);
         self.tempo_synced_factor = self.free_run_factor * factor;
     }
 
     pub fn advance(&self, value: &mut Real, num_samples: usize) -> bool {
         match self.mode {
-            SyncMode::FreeRunning => update_free_running(value, num_samples, self.free_run_factor),
-            SyncMode::TempoSync => update_tempo_sync(value, num_samples, self.tempo_synced_factor),
+            SyncMode::FreeRunning => {
+                Self::update_free_running(value, num_samples, self.free_run_factor)
+            }
+            SyncMode::TempoSync => {
+                Self::update_tempo_sync(value, num_samples, self.tempo_synced_factor)
+            }
             SyncMode::ProjectSync => {
                 let old_phase = *value;
-                *value = update_project_sync(self.project_time, self.rate);
+                *value = Self::update_project_sync(self.project_time, self.rate);
                 return *value < old_phase;
             }
         };
 
-        check_overflow(value, PHASE_MAX)
+        Self::check_overflow(value)
     }
 
     pub fn advance_one_shot(&self, value: &mut Real, num_samples: usize) -> bool {
@@ -101,40 +101,44 @@ impl Phase {
             }
         }
     }
-}
 
-fn check_overflow(phase_value: &mut Real, phase_max: Real) -> bool {
-    let overflow = *phase_value >= phase_max;
-    if overflow {
-        *phase_value %= phase_max;
+    pub fn note_len_to_rate(value: Real) -> Real {
+        static BEATS_IN_NOTE_RECIP: Real = 1. / 4.;
+        assert!(value > 0.);
+        (1. / value) * BEATS_IN_NOTE_RECIP
     }
 
-    overflow
-}
+    fn check_overflow(phase_value: &mut Real) -> bool {
+        static PHASE_MAX: Real = 1.;
 
-fn update_free_running(phase: &mut Real, num_samples: usize, free_running_factor: Real) {
-    *phase += free_running_factor * num_samples as Real;
-}
+        let overflow = *phase_value >= PHASE_MAX;
+        if overflow {
+            *phase_value %= PHASE_MAX;
+        }
 
-fn update_tempo_sync(phase: &mut Real, num_samples: usize, tempo_synced_factor: Real) {
-    *phase += num_samples as Real * tempo_synced_factor;
-}
+        overflow
+    }
 
-fn update_project_sync(project_time: Real, rate: Real) -> Real {
-    (project_time * rate).fract() // x.fract() to normalize
-}
+    fn update_free_running(phase: &mut Real, num_samples: usize, free_running_factor: Real) {
+        *phase += free_running_factor * num_samples as Real;
+    }
 
-fn compute_free_running_factor(rate: Real, sample_rate_recip: Real) -> Real {
-    rate * sample_rate_recip
-}
+    fn update_tempo_sync(phase: &mut Real, num_samples: usize, tempo_synced_factor: Real) {
+        *phase += num_samples as Real * tempo_synced_factor;
+    }
 
-fn compute_tempo_synced_factor(sixty_seconds_recip: Real, tempo: Real) -> Real {
-    sixty_seconds_recip * tempo
-}
+    fn update_project_sync(project_time: Real, rate: Real) -> Real {
+        (project_time * rate).fract() // x.fract() to normalize
+    }
 
-pub fn note_len_to_rate(value: Real) -> Real {
-    assert!(value > 0.);
-    (1. / value) * BEATS_IN_NOTE_RECIP
+    fn compute_free_running_factor(rate: Real, sample_rate_recip: Real) -> Real {
+        rate * sample_rate_recip
+    }
+
+    fn compute_tempo_synced_factor(tempo: Real) -> Real {
+        static SIXTY_SECS_RECIP: Real = 1. / 60.;
+        SIXTY_SECS_RECIP * tempo
+    }
 }
 
 #[cfg(test)]
