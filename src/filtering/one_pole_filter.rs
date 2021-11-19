@@ -1,16 +1,14 @@
 // Copyright(c) 2021 Hansen Audio.
 
-use crate::Real;
-
 #[derive(Debug, Clone)]
 pub struct OnePole {
-    a: Real,
-    b: Real,
-    z: Real,
+    a: f32,
+    b: f32,
+    z: f32,
 }
 
 impl OnePole {
-    pub fn new(a: Real) -> Self {
+    pub fn new(a: f32) -> Self {
         Self {
             a,
             b: 1. - a,
@@ -18,15 +16,15 @@ impl OnePole {
         }
     }
 
-    pub fn update_pole(&mut self, a: Real) {
+    pub fn update_pole(&mut self, a: f32) {
         self.a = a;
         self.b = 1. - a;
     }
 
-    pub fn process(&mut self, input: Real) -> Real {
+    pub fn process(&mut self, input: f32) -> f32 {
         use float_cmp::approx_eq;
 
-        if approx_eq!(Real, self.z, input) {
+        if approx_eq!(f32, self.z, input) {
             return self.z;
         }
 
@@ -34,12 +32,12 @@ impl OnePole {
         self.z
     }
 
-    pub fn reset(&mut self, input: Real) {
+    pub fn reset(&mut self, input: f32) {
         self.z = input;
     }
 
-    pub fn tau_to_pole(tau: Real, sample_rate: Real) -> Real {
-        const FIVE_RECIP: Real = 1. / 5.;
+    pub fn tau_to_pole(tau: f32, sample_rate: f32) -> f32 {
+        const FIVE_RECIP: f32 = 1. / 5.;
         let result = -1. / ((tau * FIVE_RECIP) * sample_rate);
         result.exp()
     }

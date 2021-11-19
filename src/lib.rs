@@ -2,5 +2,3 @@
 
 pub mod filtering;
 pub mod modulation;
-
-type Real = f32;
