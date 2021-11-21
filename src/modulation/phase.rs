@@ -129,7 +129,7 @@ impl Phase {
     }
 
     fn update_project_sync(project_time: f32, rate: f32) -> f32 {
-        (project_time * rate).fract() // x.fract() to normalize
+        project_time * rate
     }
 
     fn compute_free_running_factor(rate: f32, sample_rate_recip: f32) -> f32 {
