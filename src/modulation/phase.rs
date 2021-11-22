@@ -34,8 +34,8 @@ impl Phase {
     }
 
     pub fn set_project_time(&mut self, value: f64) {
-        const BEATS_IN_BAR: f64 = 4.;
-        let factor = (self.note_len as f64) * BEATS_IN_BAR;
+        const BEATS_IN_NOTE: f64 = 4.;
+        let factor = (self.note_len as f64) * BEATS_IN_NOTE;
 
         self.project_time = (value % factor) as f32;
     }
