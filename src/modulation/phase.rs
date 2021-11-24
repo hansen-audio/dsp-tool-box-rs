@@ -10,7 +10,7 @@ pub enum SyncMode {
 #[derive(Debug, Clone)]
 pub struct Phase {
     free_run_factor: f32,
-    mode: SyncMode,
+    sync_mode: SyncMode,
     note_len: f32,
     project_time: f32,
     rate: f32,
@@ -23,7 +23,7 @@ impl Phase {
     pub fn new() -> Self {
         Self {
             free_run_factor: 0.,
-            mode: SyncMode::ProjectSync,
+            sync_mode: SyncMode::ProjectSync,
             note_len: 1. / 32.,
             project_time: 0.,
             rate: 0.1,
@@ -33,31 +33,31 @@ impl Phase {
         }
     }
 
-    pub fn set_project_time(&mut self, value: f64) {
+    pub fn set_project_time(&mut self, project_time: f64) {
         const BEATS_IN_NOTE: f64 = 4.;
         let factor = (self.note_len as f64) * BEATS_IN_NOTE;
 
-        self.project_time = (value % factor) as f32;
+        self.project_time = (project_time % factor) as f32;
     }
 
-    pub fn set_sync_mode(&mut self, value: SyncMode) {
-        self.mode = value;
+    pub fn set_sync_mode(&mut self, sync_mode: SyncMode) {
+        self.sync_mode = sync_mode;
     }
 
-    pub fn set_sample_rate(&mut self, value: f32) {
-        self.sample_rate_recip = 1. / value;
-        self.free_run_factor = Self::compute_free_running_factor(self.rate, self.sample_rate_recip);
+    pub fn set_sample_rate(&mut self, sample_rate: f32) {
+        self.sample_rate_recip = 1. / sample_rate;
+        self.free_run_factor = self.rate * self.sample_rate_recip;
         self.tempo_synced_factor =
             self.free_run_factor * Self::compute_tempo_synced_factor(self.tempo);
     }
 
-    pub fn set_rate(&mut self, value: f32) {
-        self.rate = value;
+    pub fn set_rate(&mut self, rate: f32) {
+        self.rate = rate;
     }
 
-    pub fn set_note_len(&mut self, value: f32) {
-        self.note_len = value;
-        let rate = Self::note_len_to_rate(value);
+    pub fn set_note_len(&mut self, note_len: f32) {
+        self.note_len = note_len;
+        let rate = Self::note_len_to_rate(note_len);
         self.set_rate(rate);
     }
 
@@ -71,31 +71,29 @@ impl Phase {
         self.tempo_synced_factor = self.free_run_factor * factor;
     }
 
-    pub fn advance(&self, value: &mut f32, num_samples: usize) -> bool {
-        match self.mode {
+    pub fn advance(&self, phase: &mut f32, num_samples: usize) -> bool {
+        match self.sync_mode {
             SyncMode::FreeRunning => {
-                Self::update_free_running(value, num_samples, self.free_run_factor)
+                *phase += self.free_run_factor * num_samples as f32;
             }
-            SyncMode::TempoSync => {
-                Self::update_tempo_sync(value, num_samples, self.tempo_synced_factor)
-            }
+            SyncMode::TempoSync => *phase += num_samples as f32 * self.tempo_synced_factor,
             SyncMode::ProjectSync => {
-                let old_phase = *value;
-                *value = Self::update_project_sync(self.project_time, self.rate);
-                return *value < old_phase;
+                let old = *phase;
+                *phase = self.project_time * self.rate;
+                return *phase < old;
             }
         };
 
-        Self::check_overflow(value)
+        Self::check_overflow(phase)
     }
 
-    pub fn advance_one_shot(&self, value: &mut f32, num_samples: usize) -> bool {
-        match *value >= 1. {
+    pub fn advance_one_shot(&self, phase: &mut f32, num_samples: usize) -> bool {
+        match *phase >= 1. {
             true => true,
             false => {
-                let is_overflow = self.advance(value, num_samples);
+                let is_overflow = self.advance(phase, num_samples);
                 if is_overflow {
-                    *value = 1.;
+                    *phase = 1.;
                 }
 
                 is_overflow
@@ -103,37 +101,21 @@ impl Phase {
         }
     }
 
-    pub fn note_len_to_rate(value: f32) -> f32 {
+    pub fn note_len_to_rate(note_len: f32) -> f32 {
         static BEATS_IN_NOTE_RECIP: f32 = 1. / 4.;
-        assert!(value > 0.);
-        (1. / value) * BEATS_IN_NOTE_RECIP
+        assert!(note_len > 0.);
+        (1. / note_len) * BEATS_IN_NOTE_RECIP
     }
 
-    fn check_overflow(phase_value: &mut f32) -> bool {
+    fn check_overflow(phase: &mut f32) -> bool {
         static PHASE_MAX: f32 = 1.;
 
-        let overflow = *phase_value >= PHASE_MAX;
+        let overflow = *phase >= PHASE_MAX;
         if overflow {
-            *phase_value %= PHASE_MAX;
+            *phase %= PHASE_MAX;
         }
 
         overflow
-    }
-
-    fn update_free_running(phase: &mut f32, num_samples: usize, free_running_factor: f32) {
-        *phase += free_running_factor * num_samples as f32;
-    }
-
-    fn update_tempo_sync(phase: &mut f32, num_samples: usize, tempo_synced_factor: f32) {
-        *phase += num_samples as f32 * tempo_synced_factor;
-    }
-
-    fn update_project_sync(project_time: f32, rate: f32) -> f32 {
-        project_time * rate
-    }
-
-    fn compute_free_running_factor(rate: f32, sample_rate_recip: f32) -> f32 {
-        rate * sample_rate_recip
     }
 
     fn compute_tempo_synced_factor(tempo: f32) -> f32 {
