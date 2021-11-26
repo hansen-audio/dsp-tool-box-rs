@@ -1,3 +1,5 @@
+// Copyright(c) 2021 Hansen Audio.
+
 use dsp_tool_box_rs::filtering::one_pole_filter::OnePole;
 
 #[cfg(test)]
