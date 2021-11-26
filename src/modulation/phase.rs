@@ -28,20 +28,22 @@ impl Phase {
     pub fn new() -> Self {
         Self {
             free_run_factor: 0.,
-            sync_mode: SyncMode::ProjectSync,
             note_len: 1. / 32.,
             project_time: 0.,
             rate: 0.1,
             sample_rate_recip: 1. / 48000.,
+            sync_mode: SyncMode::ProjectSync,
             tempo_synced_factor: 0.,
             tempo: 120.,
         }
     }
 
     pub fn set_project_time(&mut self, project_time: f64) {
-        let factor = (self.note_len as f64) * Self::BEATS_IN_NOTE;
+        // In order to keep the project_time as 'small' as
+        // possible, the divider limits it to the range needed.
+        let divider = (self.note_len as f64) * Self::BEATS_IN_NOTE;
 
-        self.project_time = (project_time % factor) as f32;
+        self.project_time = (project_time % divider) as f32;
     }
 
     pub fn set_sync_mode(&mut self, sync_mode: SyncMode) {
@@ -109,6 +111,7 @@ impl Phase {
         (1. / note_len) * Self::BEATS_IN_NOTE_RECIP
     }
 
+    // private
     fn check_overflow(phase: &mut f32) -> bool {
         if *phase >= Self::PHASE_MAX {
             *phase %= Self::PHASE_MAX;
