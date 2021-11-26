@@ -8,6 +8,8 @@ pub struct OnePole {
 }
 
 impl OnePole {
+    const FIVE_RECIP: f32 = 1. / 5.;
+
     pub fn new(a: f32) -> Self {
         Self {
             a,
@@ -37,34 +39,7 @@ impl OnePole {
     }
 
     pub fn tau_to_pole(tau: f32, sample_rate: f32) -> f32 {
-        const FIVE_RECIP: f32 = 1. / 5.;
-        let result = -1. / ((tau * FIVE_RECIP) * sample_rate);
+        let result = -1. / ((tau * Self::FIVE_RECIP) * sample_rate);
         result.exp()
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_new() {
-        let mut c = OnePole::new(0.);
-        c.process(1.);
-        c.update_pole(1.);
-        c.reset(1.);
-    }
-
-    #[test]
-    fn test_tau_to_pole() {
-        let pole = OnePole::tau_to_pole(0.9, 48000.);
-        assert_eq!(pole, 0.999884247);
-    }
-
-    #[test]
-    #[ignore]
-    fn test_debug_print() {
-        let filter = OnePole::new(0.);
-        println!("{:#?}", filter);
     }
 }

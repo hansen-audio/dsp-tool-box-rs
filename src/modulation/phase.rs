@@ -20,6 +20,11 @@ pub struct Phase {
 }
 
 impl Phase {
+    const BEATS_IN_NOTE_RECIP: f32 = 1. / 4.;
+    const BEATS_IN_NOTE: f64 = 4.;
+    const PHASE_MAX: f32 = 1.;
+    const SIXTY_SECS_RECIP: f32 = 1. / 60.;
+
     pub fn new() -> Self {
         Self {
             free_run_factor: 0.,
@@ -34,8 +39,7 @@ impl Phase {
     }
 
     pub fn set_project_time(&mut self, project_time: f64) {
-        const BEATS_IN_NOTE: f64 = 4.;
-        let factor = (self.note_len as f64) * BEATS_IN_NOTE;
+        let factor = (self.note_len as f64) * Self::BEATS_IN_NOTE;
 
         self.project_time = (project_time % factor) as f32;
     }
@@ -47,8 +51,7 @@ impl Phase {
     pub fn set_sample_rate(&mut self, sample_rate: f32) {
         self.sample_rate_recip = 1. / sample_rate;
         self.free_run_factor = self.rate * self.sample_rate_recip;
-        self.tempo_synced_factor =
-            self.free_run_factor * Self::compute_tempo_synced_factor(self.tempo);
+        self.tempo_synced_factor = self.free_run_factor * (Self::SIXTY_SECS_RECIP * self.tempo);
     }
 
     pub fn set_rate(&mut self, rate: f32) {
@@ -67,7 +70,7 @@ impl Phase {
 
     pub fn set_tempo(&mut self, tempo_bpm: f32) {
         self.tempo = tempo_bpm;
-        let factor = Self::compute_tempo_synced_factor(tempo_bpm);
+        let factor = Self::SIXTY_SECS_RECIP * self.tempo;
         self.tempo_synced_factor = self.free_run_factor * factor;
     }
 
@@ -102,67 +105,16 @@ impl Phase {
     }
 
     pub fn note_len_to_rate(note_len: f32) -> f32 {
-        static BEATS_IN_NOTE_RECIP: f32 = 1. / 4.;
         assert!(note_len > 0.);
-        (1. / note_len) * BEATS_IN_NOTE_RECIP
+        (1. / note_len) * Self::BEATS_IN_NOTE_RECIP
     }
 
     fn check_overflow(phase: &mut f32) -> bool {
-        static PHASE_MAX: f32 = 1.;
-
-        let overflow = *phase >= PHASE_MAX;
-        if overflow {
-            *phase %= PHASE_MAX;
+        if *phase >= Self::PHASE_MAX {
+            *phase %= Self::PHASE_MAX;
+            return true;
         }
 
-        overflow
-    }
-
-    fn compute_tempo_synced_factor(tempo: f32) -> f32 {
-        static SIXTY_SECS_RECIP: f32 = 1. / 60.;
-        SIXTY_SECS_RECIP * tempo
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_new() {
-        let context = Phase::new();
-        assert_eq!(context.tempo, 120.);
-        assert_eq!(context.rate, 0.1);
-    }
-
-    #[test]
-    fn test_advance() {
-        let context = Phase::new();
-        let mut value = 0.1;
-        let did_overflow = context.advance(&mut value, 1);
-        assert_eq!(did_overflow, true);
-    }
-
-    #[test]
-    fn test_project_synced_overflow() {
-        let mut phase_value = 0.;
-        let mut context = Phase::new();
-        context.set_sync_mode(SyncMode::ProjectSync);
-        context.set_note_len(1.0);
-        context.set_project_time(999999.9);
-
-        let mut overflow = context.advance(&mut phase_value, 1);
-        assert_eq!(overflow, false);
-
-        context.set_project_time(4.0);
-        overflow = context.advance(&mut phase_value, 1);
-        assert_eq!(overflow, true);
-    }
-
-    #[test]
-    #[ignore]
-    fn test_debug_print() {
-        let p = Phase::new();
-        println!("{:#?}", p);
+        false
     }
 }
