@@ -1,5 +1,7 @@
 // Copyright(c) 2021 Hansen Audio.
 
+use crate::{AudioFrame, NUM_CHANNELS};
+
 #[derive(Debug, Clone)]
 pub struct OnePole {
     a: f32,
@@ -36,6 +38,53 @@ impl OnePole {
 
     pub fn reset(&mut self, input: f32) {
         self.z = input;
+    }
+
+    pub fn tau_to_pole(tau: f32, sample_rate: f32) -> f32 {
+        let result = -1. / ((tau * Self::FIVE_RECIP) * sample_rate);
+        result.exp()
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct OnePoleMulti {
+    a: f32,
+    b: f32,
+    z: AudioFrame,
+}
+
+impl OnePoleMulti {
+    const FIVE_RECIP: f32 = 1. / 5.;
+
+    pub fn new(a: f32) -> Self {
+        Self {
+            a,
+            b: 1. - a,
+            z: [0., 0., 0., 0.],
+        }
+    }
+
+    pub fn update_pole(&mut self, a: f32) {
+        self.a = a;
+        self.b = 1. - a;
+    }
+
+    pub fn process(&mut self, input: &AudioFrame, output: &mut AudioFrame) {
+        use float_cmp::approx_eq;
+
+        for i in 0..NUM_CHANNELS {
+            if !approx_eq!(f32, self.z[i], input[i]) {
+                self.z[i] = (input[i] * self.b) + (self.z[i] * self.a);
+            }
+
+            output[i] = self.z[i]
+        }
+    }
+
+    pub fn reset(&mut self, input: f32) {
+        for item in self.z.iter_mut() {
+            *item = input;
+        }
     }
 
     pub fn tau_to_pole(tau: f32, sample_rate: f32) -> f32 {
