@@ -69,22 +69,20 @@ impl OnePoleMulti {
         self.b = 1. - a;
     }
 
-    pub fn process(&mut self, input: &AudioFrame, output: &mut AudioFrame) {
+    pub fn process(&mut self, input: &AudioFrame) -> AudioFrame {
         use float_cmp::approx_eq;
 
         for i in 0..NUM_CHANNELS {
             if !approx_eq!(f32, self.z[i], input[i]) {
                 self.z[i] = (input[i] * self.b) + (self.z[i] * self.a);
             }
-
-            output[i] = self.z[i]
         }
+
+        self.z
     }
 
     pub fn reset(&mut self, input: f32) {
-        for item in self.z.iter_mut() {
-            *item = input;
-        }
+        self.z.iter_mut().for_each(|item| *item = input);
     }
 
     pub fn tau_to_pole(tau: f32, sample_rate: f32) -> f32 {
