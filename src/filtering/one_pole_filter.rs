@@ -25,6 +25,10 @@ impl OnePole {
         self.b = 1. - a;
     }
 
+    pub fn set_tau(&mut self, tau: f32, sample_rate: f32) {
+        self.set_pole(Self::tau_to_pole(tau, sample_rate));
+    }
+
     pub fn process(&mut self, input: f32) -> f32 {
         use float_cmp::approx_eq;
 
@@ -54,8 +58,6 @@ pub struct OnePoleMulti {
 }
 
 impl OnePoleMulti {
-    const FIVE_RECIP: f32 = 1. / 5.;
-
     pub fn new(a: f32) -> Self {
         Self {
             a,
@@ -67,6 +69,10 @@ impl OnePoleMulti {
     pub fn set_pole(&mut self, a: f32) {
         self.a = a;
         self.b = 1. - a;
+    }
+
+    pub fn set_tau(&mut self, tau: f32, sample_rate: f32) {
+        self.set_pole(OnePole::tau_to_pole(tau, sample_rate));
     }
 
     pub fn process(&mut self, input: &AudioFrame) -> AudioFrame {
@@ -83,10 +89,5 @@ impl OnePoleMulti {
 
     pub fn reset(&mut self, input: f32) {
         self.z.iter_mut().for_each(|item| *item = input);
-    }
-
-    pub fn tau_to_pole(tau: f32, sample_rate: f32) -> f32 {
-        let result = -1. / ((tau * Self::FIVE_RECIP) * sample_rate);
-        result.exp()
     }
 }
