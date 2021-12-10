@@ -20,7 +20,7 @@ impl OnePole {
         }
     }
 
-    pub fn update_pole(&mut self, a: f32) {
+    pub fn set_pole(&mut self, a: f32) {
         self.a = a;
         self.b = 1. - a;
     }
@@ -64,7 +64,7 @@ impl OnePoleMulti {
         }
     }
 
-    pub fn update_pole(&mut self, a: f32) {
+    pub fn set_pole(&mut self, a: f32) {
         self.a = a;
         self.b = 1. - a;
     }
