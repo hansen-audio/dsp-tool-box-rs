@@ -3,13 +3,13 @@
 use crate::{AudioFrame, NUM_CHANNELS};
 
 #[derive(Debug, Clone)]
-pub struct OnePole {
+pub struct OnePoleSimple {
     a: f32,
     b: f32,
     z: f32,
 }
 
-impl OnePole {
+impl OnePoleSimple {
     const FIVE_RECIP: f32 = 1. / 5.;
 
     pub fn new(a: f32) -> Self {
@@ -51,18 +51,18 @@ impl OnePole {
 }
 
 #[derive(Debug, Clone)]
-pub struct OnePoleMulti {
+pub struct OnePoleSimpleMulti {
     a: f32,
     b: f32,
     z: AudioFrame,
 }
 
-impl OnePoleMulti {
+impl OnePoleSimpleMulti {
     pub fn new(a: f32) -> Self {
         Self {
             a,
             b: 1. - a,
-            z: [0., 0., 0., 0.],
+            z: [0.; NUM_CHANNELS],
         }
     }
 
@@ -72,7 +72,7 @@ impl OnePoleMulti {
     }
 
     pub fn set_tau(&mut self, tau: f32, sample_rate: f32) {
-        self.set_pole(OnePole::tau_to_pole(tau, sample_rate));
+        self.set_pole(OnePoleSimple::tau_to_pole(tau, sample_rate));
     }
 
     pub fn process(&mut self, input: &AudioFrame) -> AudioFrame {

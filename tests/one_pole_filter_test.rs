@@ -1,7 +1,7 @@
 // Copyright(c) 2021 Hansen Audio.
 
-use dsp_tool_box_rs::filtering::one_pole_filter::OnePole;
-use dsp_tool_box_rs::filtering::one_pole_filter::OnePoleMulti;
+use dsp_tool_box_rs::filtering::one_pole_simple::OnePoleSimple;
+use dsp_tool_box_rs::filtering::one_pole_simple::OnePoleSimpleMulti;
 
 #[cfg(test)]
 mod tests {
@@ -17,13 +17,13 @@ mod tests {
 
     #[test]
     fn test_tau_to_pole() {
-        let pole = OnePole::tau_to_pole(0.9, 48000.);
+        let pole = OnePoleSimple::tau_to_pole(0.9, 48000.);
         assert_eq!(pole, 0.999884247);
     }
 
     #[test]
     fn test_one_pole() {
-        let mut filter = OnePole::new(POLE);
+        let mut filter = OnePoleSimple::new(POLE);
         for item in RESULTS.into_iter() {
             let out = filter.process(INPUT);
             assert!(out == item);
@@ -33,7 +33,7 @@ mod tests {
 
     #[test]
     fn test_one_pole_multi() {
-        let mut filter = OnePoleMulti::new(POLE);
+        let mut filter = OnePoleSimpleMulti::new(POLE);
         for item in RESULTS.into_iter() {
             let out = filter.process(&[INPUT, INPUT, INPUT, INPUT]);
             assert!(out == [item, item, item, item]);
