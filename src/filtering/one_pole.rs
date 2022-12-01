@@ -2,11 +2,13 @@
 
 use crate::{AudioFrame, NUM_CHANNELS};
 
+#[derive(Clone, Copy)]
 pub enum OnePoleType {
-    TP,
+    LP,
     HP,
 }
 
+#[derive(Clone, Copy)]
 pub struct OnePole {
     a: f32,
     cutoff: f32,
@@ -25,7 +27,7 @@ impl OnePole {
         Self {
             a: 0.,
             cutoff: 0.,
-            filter_type: OnePoleType::TP,
+            filter_type: OnePoleType::LP,
             omega: 1000. * Self::PI_2,
             sample_rate_recip: 1.,
             x_1: [0.; NUM_CHANNELS],
@@ -62,7 +64,7 @@ impl OnePole {
     fn process_stereo(&mut self, ins: &AudioFrame, outs: &mut AudioFrame) {
         for i in 0..Self::NUM_STEREO_CHANNELS {
             outs[i] = match self.filter_type {
-                OnePoleType::TP => self.a * ins[i] + (1. - self.a) * self.y_1[i],
+                OnePoleType::LP => self.a * ins[i] + (1. - self.a) * self.y_1[i],
                 OnePoleType::HP => self.a * (self.y_1[i] + ins[i] - self.x_1[i]),
             };
 
@@ -74,7 +76,7 @@ impl OnePole {
     fn _process_all_channels(&mut self, ins: &AudioFrame, outs: &mut AudioFrame) {
         for (i, el) in outs.iter_mut().enumerate() {
             match self.filter_type {
-                OnePoleType::TP => *el = self.a * ins[i] + (1. - self.a) * self.y_1[i],
+                OnePoleType::LP => *el = self.a * ins[i] + (1. - self.a) * self.y_1[i],
                 OnePoleType::HP => *el = self.a * (self.y_1[i] + ins[i] - self.x_1[i]),
             }
 
@@ -85,7 +87,7 @@ impl OnePole {
 
     fn recalc_coeff(&mut self) {
         self.a = match self.filter_type {
-            OnePoleType::TP => self.sample_rate_recip / (1. / self.omega + self.sample_rate_recip),
+            OnePoleType::LP => self.sample_rate_recip / (1. / self.omega + self.sample_rate_recip),
             OnePoleType::HP => (1. / self.omega) / (1. / self.omega + self.sample_rate_recip),
         }
     }
@@ -99,7 +101,7 @@ mod tests {
     fn test_delay_line_multi() {
         let mut one_pole = OnePole::new();
         one_pole.set_sample_rate(44100.);
-        one_pole.set_filter_type(OnePoleType::TP);
+        one_pole.set_filter_type(OnePoleType::LP);
         one_pole.set_frequency(2000.);
         one_pole.reset();
 
@@ -110,6 +112,12 @@ mod tests {
             one_pole.process(&ins, &mut outs);
         }
 
-        assert!(outs == [0.49983612, 0.24991806, 0.0, 0.0]);
+        assert_eq!(outs, [0.49983612, 0.24991806, 0.0, 0.0]);
+    }
+
+    #[test]
+    fn test_delay_clone_copy() {
+        let _filter_arr = [OnePole::new(); 2];
+        let _filter_vec = vec![OnePole::new(); 2];
     }
 }
