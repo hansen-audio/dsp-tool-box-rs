@@ -35,6 +35,18 @@ impl OnePole {
         }
     }
 
+    pub fn process_mono(&mut self, input: f32) -> f32 {
+        const L_CH: usize = 0;
+        let output = match self.filter_type {
+            OnePoleType::LP => self.a * input + (1. - self.a) * self.y_1[L_CH],
+            OnePoleType::HP => self.a * (self.y_1[L_CH] + input - self.x_1[L_CH]),
+        };
+
+        self.x_1[L_CH] = input;
+        self.y_1[L_CH] = output;
+        output
+    }
+
     pub fn process(&mut self, ins: &AudioFrame, outs: &mut AudioFrame) {
         //Process only two channels for now
         self.process_stereo(ins, outs);
