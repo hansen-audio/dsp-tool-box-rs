@@ -47,9 +47,9 @@ impl OnePole {
         output
     }
 
-    pub fn process(&mut self, ins: &AudioFrame, outs: &mut AudioFrame) {
+    pub fn process(&mut self, outputs: &mut AudioFrame) {
         //Process only two channels for now
-        self.process_stereo(ins, outs);
+        self.process_stereo(outputs);
     }
 
     pub fn set_sample_rate(&mut self, sample_rate: f32) {
@@ -73,27 +73,16 @@ impl OnePole {
         self.recalc_coeff();
     }
 
-    fn process_stereo(&mut self, ins: &AudioFrame, outs: &mut AudioFrame) {
+    fn process_stereo(&mut self, outputs: &mut AudioFrame) {
         for i in 0..Self::NUM_STEREO_CHANNELS {
-            outs[i] = match self.filter_type {
-                OnePoleType::LP => self.a * ins[i] + (1. - self.a) * self.y_1[i],
-                OnePoleType::HP => self.a * (self.y_1[i] + ins[i] - self.x_1[i]),
+            let input = outputs[i];
+            outputs[i] = match self.filter_type {
+                OnePoleType::LP => self.a * input + (1. - self.a) * self.y_1[i],
+                OnePoleType::HP => self.a * (self.y_1[i] + input - self.x_1[i]),
             };
 
-            self.x_1[i] = ins[i];
-            self.y_1[i] = outs[i];
-        }
-    }
-
-    fn _process_all_channels(&mut self, ins: &AudioFrame, outs: &mut AudioFrame) {
-        for (i, el) in outs.iter_mut().enumerate() {
-            match self.filter_type {
-                OnePoleType::LP => *el = self.a * ins[i] + (1. - self.a) * self.y_1[i],
-                OnePoleType::HP => *el = self.a * (self.y_1[i] + ins[i] - self.x_1[i]),
-            }
-
-            self.x_1[i] = ins[i];
-            self.y_1[i] = *el;
+            self.x_1[i] = input;
+            self.y_1[i] = outputs[i];
         }
     }
 
@@ -117,14 +106,19 @@ mod tests {
         one_pole.set_frequency(2000.);
         one_pole.reset();
 
-        let ins: AudioFrame = [0.5, 0.25, 0.5, 0.75];
-        let mut outs: AudioFrame = [0.; 4];
+        let mut outputs: AudioFrame = [1., 0.75, 0.5, 0.25];
+        let inputs: AudioFrame = [0.; 4];
 
-        for _ in 0..32 {
-            one_pole.process(&ins, &mut outs);
+        one_pole.process(&mut outputs);
+        // println!("{:#?}", outputs);
+        for _ in 0..31 {
+            outputs.copy_from_slice(&inputs);
+            one_pole.process(&mut outputs);
+            // println!("{:#?}", outputs);
         }
 
-        assert_eq!(outs, [0.49983612, 0.24991806, 0.0, 0.0]);
+        // println!("{:#?}", outputs);
+        assert_eq!(outputs, [9.341004e-5, 7.0057526e-5, 0.0, 0.0]);
     }
 
     #[test]
